@@ -1,5 +1,5 @@
 /*
-
+n
 == Definition: tomcat::instance
 
 This definition will create:
@@ -58,6 +58,7 @@ Parameters:
   editing setenv-local.sh.
 - *connector*: an array of tomcat::connector name (string) to include in server.xml
 - *executor*: an array of tomcat::executor name (string) to include in server.xml
+- *hosts*: an array of tomcat::host name (string) to include in server.xml
 
 Requires:
 - one of the tomcat classes which installs tomcat binaries.
@@ -103,10 +104,11 @@ define tomcat::instance($ensure="present",
                         $setenv=[],
                         $connector=[],
                         $executor=[],
+                        $hosts=[],
                         $manage=false) {
 
   include tomcat::params
-  
+
   $tomcat_name = $name
   $basedir = "${tomcat::params::instance_basedir}/${name}"
 
@@ -134,9 +136,9 @@ define tomcat::instance($ensure="present",
   }
 
   if $connector == [] and $server_xml_file == "" {
-    
+
     $connectors = ["http-${http_port}-${name}","ajp-${ajp_port}-${name}"]
-    
+
     tomcat::connector{"http-${http_port}-${name}":
       ensure   => $ensure ? {
         "absent" => absent,
@@ -179,7 +181,7 @@ define tomcat::instance($ensure="present",
 
   if $tomcat::params::type == "package" and $lsbdistcodename == "Santiago" {
     # force catalina.sh to use the common library in CATALINA_HOME and not CATALINA_BASE
-    $classpath = "/usr/share/tomcat6/bin/tomcat-juli.jar" 
+    $classpath = "/usr/share/tomcat6/bin/tomcat-juli.jar"
   }
 
   # default server.xml is slightly different between tomcat5.5 and tomcat6
@@ -247,14 +249,14 @@ define tomcat::instance($ensure="present",
             "adm"   => undef,
             default => Group[$group],
           };
-    
+
         "${basedir}/bin":
           ensure => directory,
           owner  => "root",
           group  => $group,
           mode   => 755,
           before => Service["tomcat-${name}"];
-    
+
         # Developpers usually write there
         "${basedir}/conf":
           ensure => directory,
@@ -294,7 +296,7 @@ define tomcat::instance($ensure="present",
           notify  => $manage? {
             true    => Service["tomcat-${name}"],
             default => undef,
-          }, 
+          },
           require => $server_xml_file? {
             ""      => undef,
             default => Tomcat::Connector[$connectors],
@@ -327,7 +329,7 @@ define tomcat::instance($ensure="present",
           group  => $group,
           mode   => $dirmode,
           before => Service["tomcat-${name}"];
-    
+
         # Tomcat usually write there
         "${basedir}/logs":
           ensure => directory,

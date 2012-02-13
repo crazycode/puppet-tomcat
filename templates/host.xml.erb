@@ -1,0 +1,10 @@
+      <Host name="<%= domain_name || name %>"  appBase="webapp_<%= name %>"
+      unpackWARs="<%= unpack_wars %>" autoDeploy="<%= auto_deploy %>"
+      xmlValidation="<%= xml_validation %>" xmlNamespaceAware="<%= xml_namespace_aware %>">
+        <% aliases.each do |alis| -%>
+        <Alias><%= alis %></Alias>
+        <% end -%>
+        <context path="" docBase="<%= doc_base %>" reloadable="true" >
+          <logger className="org.apache.catalina.logger.FileLogger" prefix="<%= name %>." suffix=".log" timestamp="true"/>
+        </context>
+      </Host>
